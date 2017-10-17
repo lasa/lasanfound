@@ -1,34 +1,99 @@
 *{
-	font-family: sans-serif;
+		font-family: "Verdana", "arial", sans-serif;
+		color: white;
+		background-color: #800080;
+}
+
+input[type="text"]{
+	background-color: white;
+	color: black;
+}
+
+.item{
+	margin-bottom: 25px;
 }
 
 .toolbar{
-	color:black;
+	width: 500px;
+	text-decoration: none;
+	font-style: normal;
+	padding-bottom: 25px;
+	border-bottom-color: white;
+	border-bottom-width: 2px;
+	border-bottom-style: solid;
+	margin-bottom: 25px;
+}
+
+.tool-link{
+	text-decoration: none;
+}
+
+.top{
+	margin-top: 20px;
 }
 
 .bot{
 	font-weight: bold
 }
 
-.item{
-	margin-top: 3%;
+.item-title{
+	font-size: 130%;
 }
 
-h1{
-	color: white;
+.item-date{
+	font-size: 70%;
 }
 
-body{
-	background-color: #800080;
+.item-date-perm{
+	font-size: 85%;
 }
 
-.outer{
-	background-color: #ffe6ff;
-	width: 100%;
-	height: 400px;
+.item-location{
+	font-size: 70%;
 }
 
-.inner{
-	position: relative;
-	left: 15%;
+.item-location-perm{
+	font-size: 100%;
+}
+
+.item-description-perm{
+	font-size: 120%;
+}
+
+.submit{
+	font-size: 100%;
+	color: purple;
+	background-color: white;
+	border: 0px solid purple;
+	border-radius: 10px;
+	width: 100px;
+	height: 30px;
+	font-weight: bold;
+}
+
+.claim{
+	font-size: 100%;
+	color: purple;
+	background-color: white;
+	border: 0px solid purple;
+	border-radius: 10px;
+	font-weight: bold;
+	height: 30px;
+	width: 120px;
+}
+
+.error{
+	color: red;
+	font-weight: bold;
+	margin-left: 10px;
+}
+
+.nostyle-link{
+	text-decoration: none;
+}
+
+#home-container {
+	width: 70%;
+	min-width: 700px;
+	margin: auto;
 }
