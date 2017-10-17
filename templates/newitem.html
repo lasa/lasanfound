@@ -9,30 +9,31 @@
     <h1>Report a New Lost Item</h1>
     <div class="toolbar">
      <a class="tool-link" href="/">Home</a> |
-     <a class="tool-link" href="/new">About</a>
+     <a class="tool-link" href="/about">About</a>
     </div>
-    <div class="outer">
-      <div class="inner">
-        <form method="post">
-          <label>
-            <div class="bot">Title</div>
-            <input type="text" name="title">
-          </label>
-          <label>
-            <div class="top"><div class="bot">Description</div>Be brief, but provide any useful details</div>
-            <input type="text" name="description"></input>
-          </label>
-          <label>
-            <div class="top"><div class="bot">Location</div>i.e "front office" or "room 222"</div>
-            <input type="text" name="location"></input>
-          </label>
-          <div>
-              I need to implement a way to upload a picture
-          </div>
-          <br>
-          <input type="submit">
-        </form>
+    <!-- <form action="handle_upload" method="post" enctype="multipart/form-data"> -->
+    <!--<form action="{{upload_url}}" method="post" enctype="multipart/form-data">-->
+    <form method="post">
+      <div class="top">
+        <span class="bot">Title</span><span class="error">{{error}}</span><br><br>
+        <input type="text" name="title">
       </div>
-    </div>
+      <div class="top">
+        <span class="bot">Description</span>
+        <p>(optional) Be brief, but provide any useful details</p>
+        <input type="text" name="description" value="{{descData}}"></input>
+      </div>
+      <div class="top">
+        <div class="bot">Location</div>
+        <p>i.e "front office" or "room 222"</p>
+        <input type="text" name="location" value="{{locData}}"></input>
+      </div>
+      <div class="top">
+        <div class="bot">Picture</div>
+        <p>Add relevent picture of the item</p>
+        <input name="file" type="file"/>
+      </div><br><br>
+      <input class="submit" type="submit">
+    </form>
   </body>
 </html>
