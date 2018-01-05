@@ -4,13 +4,15 @@
     <meta charset="utf-8">
     <title>LASA 'n Found - New Item</title>
     <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+    <script src='https://www.google.com/recaptcha/api.js'></script>
   </head>
   <body>
     <div class="page-container">
       <h1>Report a New Lost Item</h1>
       <div class="toolbar">
        <a class="tool-link" href="/">Home</a> |
-       <a class="tool-link" href="/about">About</a>
+       <a class="tool-link" href="/about">About</a> |
+       <a class="tool-link" href="/new"><b>New Item</b></a>
       </div>
       <!--action needs to update-->
       <form enctype="multipart/form-data" method="post">
@@ -33,7 +35,7 @@
           <p>Add relevent picture of the item <span class="error">{{fileError}}</span></p>
           <input name="file" type="file"/>
         </div><br>
-        <div class="g-recaptcha" data-sitekey="6LdVQTQUAAAAALtj9Jq1fTVLxU-SK3Ib1L_1Sm0H"></div>
+        <div class="g-recaptcha" data-sitekey="6LdVQTQUAAAAALtj9Jq1fTVLxU-SK3Ib1L_1Sm0H"></div><br>
         <input class="submit" type="submit" value="Submit">
       </form>
     </div>
