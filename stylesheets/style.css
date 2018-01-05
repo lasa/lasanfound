@@ -71,6 +71,19 @@ input[type="text"]{
 	font-weight: bold;
 }
 
+.pic-get{
+	max-width: 300px;	
+}
+
+.home-pic{
+	max-height: 120px;
+}
+
+.pic{
+	border: 3px solid white; 
+	box-shadow: 0 10px 10px rgba(0,0,0,0.3);
+}
+
 .claim{
 	font-size: 100%;
 	color: purple;
@@ -80,6 +93,7 @@ input[type="text"]{
 	font-weight: bold;
 	height: 30px;
 	width: 120px;
+	margin-bottom: 50px;
 }
 
 .error{
@@ -92,8 +106,9 @@ input[type="text"]{
 	text-decoration: none;
 }
 
-#home-container {
+.page-container {
 	width: 70%;
 	min-width: 700px;
 	margin: auto;
 }
+

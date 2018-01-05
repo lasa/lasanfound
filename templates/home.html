@@ -6,19 +6,27 @@
     <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
   </head>
   <body>
-    <h1>LASA's very own lost and found database</h1>
-    <div class="toolbar">
-	    <a class="tool-link" href="/about">About</a> |
-	    <a class="tool-link" href="/new">New Item</a>
-	  </div>
-    <div class="items">
-      {% for item in items %}
-        <div class="item">
-    	    <div class="item-title">{{item.title}}</div>
-    	    <div class="item-date">{{item.created.date().strftime("%A %B %d, %Y")}} {{item.created.time().strftime("%X %z")}}</div>
-    	    <div class="item-description">{{item.description}}</div>
-        </div>
-      {% endfor %}
+    <div class="page-container">
+      <h1>LASA 'n Found</h1>
+      <div class="toolbar">
+  	    <a class="tool-link" href="/about">About</a> |
+  	    <a class="tool-link" href="/new">New Item</a>
+  	  </div>
+      <div class="items">
+        {% for item in items %}
+          <div class="item">
+      	    <div class="item-title"><a class="nostyle-link" href="/item/{{item.key().id()}}">{{item.title}}</a></div>
+      	    <div class="item-date">Submitted {{item.created.date().strftime("%A %B %d, %Y")}} {{item.created.time().strftime("%z")}}</div>
+            {% if item.location %}
+              <div class="item-location">Currently in: {{item.location}}</div>
+            {% endif %}
+      	    <div class="item-description">{{item.description}}</div><br>
+            {% if item.picture %}
+              <div class="picture"><a class="nostyle-link" href="/item/{{item.key().id()}}"><img class="home-pic pic" src="/img/{{item.key().id()}}"></a></img></div>
+            {% endif  %}
+          </div>
+        {% endfor %}
+      </div>
     </div>
   </body>
 </html>

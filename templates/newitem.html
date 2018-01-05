@@ -6,34 +6,36 @@
     <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
   </head>
   <body>
-    <h1>Report a New Lost Item</h1>
-    <div class="toolbar">
-     <a class="tool-link" href="/">Home</a> |
-     <a class="tool-link" href="/about">About</a>
+    <div class="page-container">
+      <h1>Report a New Lost Item</h1>
+      <div class="toolbar">
+       <a class="tool-link" href="/">Home</a> |
+       <a class="tool-link" href="/about">About</a>
+      </div>
+      <!--action needs to update-->
+      <form enctype="multipart/form-data" method="post">
+        <div class="top">
+          <span class="bot">Title</span><span class="error">{{titleError}}</span><br><br>
+          <input type="text" name="title" value="{{titleData}}">
+        </div>
+        <div class="top">
+          <span class="bot">Description</span>
+          <p>(optional) Be brief, but provide any useful details</p>
+          <input type="text" name="description" value="{{descData}}"></input>
+        </div>
+        <div class="top">
+          <div class="bot">Location</div>
+          <p>i.e "front office" or "room 222"</p>
+          <input type="text" name="location" value="{{locData}}"></input>
+        </div>
+        <div class="top">
+          <div class="bot">Picture</div>
+          <p>Add relevent picture of the item <span class="error">{{fileError}}</span></p>
+          <input name="file" type="file"/>
+        </div><br>
+        <div class="g-recaptcha" data-sitekey="6LdVQTQUAAAAALtj9Jq1fTVLxU-SK3Ib1L_1Sm0H"></div>
+        <input class="submit" type="submit" value="Submit">
+      </form>
     </div>
-    <!-- <form action="handle_upload" method="post" enctype="multipart/form-data"> -->
-    <!--<form action="{{upload_url}}" method="post" enctype="multipart/form-data">-->
-    <form method="post">
-      <div class="top">
-        <span class="bot">Title</span><span class="error">{{error}}</span><br><br>
-        <input type="text" name="title">
-      </div>
-      <div class="top">
-        <span class="bot">Description</span>
-        <p>(optional) Be brief, but provide any useful details</p>
-        <input type="text" name="description" value="{{descData}}"></input>
-      </div>
-      <div class="top">
-        <div class="bot">Location</div>
-        <p>i.e "front office" or "room 222"</p>
-        <input type="text" name="location" value="{{locData}}"></input>
-      </div>
-      <div class="top">
-        <div class="bot">Picture</div>
-        <p>Add relevent picture of the item</p>
-        <input name="file" type="file"/>
-      </div><br><br>
-      <input class="submit" type="submit">
-    </form>
   </body>
 </html>

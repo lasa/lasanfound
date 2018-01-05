@@ -11,7 +11,7 @@ import urllib
 import re
 import httplib
 import json
-#import cloudstorage as gcs
+import imghdr
 from datetime import datetime, timedelta
 from google.appengine.api import app_identity
 from google.appengine.ext import db
@@ -19,8 +19,11 @@ from google.appengine.api import users
 from google.appengine.ext import blobstore
 from google.appengine.ext import ndb
 from google.appengine.ext.webapp import blobstore_handlers
+from google.appengine.ext import webapp
+from google.appengine.ext.webapp.util import run_wsgi_app
+import smtplib
 
-## see http://jinja.pocoo.org/docs/api/#autoescaping
+#see http://jinja.pocoo.org/docs/api/#autoescaping
 def guess_autoescape(template_name):
  if template_name is None or '.' not in template_name:
   return False
@@ -28,7 +31,7 @@ def guess_autoescape(template_name):
   return ext in ('xml', 'html', 'htm')
 
 JINJA_ENVIRONMENT = jinja2.Environment(
- autoescape=guess_autoescape,     ## see http://jinja.pocoo.org/docs/api/#autoxscaping
+ autoescape=guess_autoescape, #see http://jinja.pocoo.org/docs/api/#autoxscaping
  loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
  extensions=['jinja2.ext.autoescape'])
 
@@ -48,22 +51,12 @@ class Handler(webapp2.RequestHandler):
   self.response.headers['Content-Type'] = 'application/json; charset=UTF-8'
   self.write(json_txt)
 
-#this probably needs to change to get the bucket to work
-"""
-def file_handle(self):
-  bucket_name = os.environ.get('BUCKET_NAME', app_identity.get_default_gcs_bucket_name())
-  #self.response.headers['Content-Type'] = 'text/plain'
-  logging.info('Demo GCS Application running from Version: ' + os.environ['CURRENT_VERSION_ID'] + '\n')
-  logging.info('Using bucket name: ' + bucket_name + '\n\n')
-  #self.response.write('Demo GCS Application running from Version: ' + os.environ['CURRENT_VERSION_ID'] + '\n')
-  #self.response.write('Using bucket name: ' + bucket_name + '\n\n')
-"""
-
 #Model for the item objects
 class Item(db.Model):
  title = db.StringProperty()
  description = db.StringProperty()
  location = db.StringProperty()
+ picture = db.BlobProperty()
  created = db.DateTimeProperty(auto_now_add = True)
 
 class Home(Handler):
@@ -72,87 +65,101 @@ class Home(Handler):
   items = db.GqlQuery("SELECT * FROM Item ORDER BY created DESC limit 10")
   self.render("home.html", items=items)
 
+class About(Handler):
+  def get(self):
+    self.render("about.html")
+
 class NewItem(Handler):
  def get(self):
   logging.info("******** New Item GET ******")
   upload_url = blobstore.create_upload_url('/upload')
+  #this needs to include a blob array
   self.render("newitem.html", upload_url=upload_url)
 
  def post(self):
+  #need to add error handling for a file too  large
   logging.info("******** New Item POST *******")
   upload_url = blobstore.create_upload_url('/upload')
-  title = self.request.get("title")
-  desc = self.request.get("description")
-  location = self.request.get("location")
-  if(title==""):
-    logging.info("error, submitted blank title")
-    error="*Please Add a Title*"
-    self.render("newitem.html", error=error, descData=desc, locData=location, upload_url=upload_url)
-
-  else:
-    logging.info("no errors, posting item")
-    it = Item(title=title, description=desc, location=location)
-    it.put()
-    #item_id = it.key().id()
-    time.sleep(0.1)
-    self.redirect('/')
-
-"""
-class UploadHandler(Handler):
-  def get(self):
-    logging.info("enter uploader GET (shouldn't happen)")
-
-  def post(self):
-    logging.info("enter uploader POST")
-    try:
-      upload = self.get_uploads()[0]
-      user_photo = UserPhoto(
-          user=users.get_current_user().user_id(),
-          blob_key=upload.key())
-      user_photo.put()
+  title = cgi.escape(self.request.get("title"), quote=True)
+  desc = cgi.escape(self.request.get("description"), quote=True)
+  location = cgi.escape(self.request.get("location"), quote=True)
+  picture = self.request.get("file")
+  img_type = imghdr.what(None, picture)
+  img_type = str(img_type)
+  supportedtypes = ['png', 'jpeg', 'gif', 'tiff', 'bmp']
+  con = httplib.HTTPSConnection("www.google.com")
+  con.request("POST", "/recaptcha/api/siteverify", urllib.urlencode({"secret": "6LdVQTQUAAAAAEla2hBTZfXSiBOiaGUjYPVcbzIg", "response": self.request.get("g-recaptcha-response"), "remoteip": self.request.remote_addr}), {"Content-Type": "application/x-www-form-urlencoded"})
+  response = con.getresponse()
+  data = response.read()
+  success = json.loads(data)['success']
+  if success:
+    if title=="":
+      logging.info("error, submitted blank title")
+      titleError="*Please Add a Title*"
+      self.render("newitem.html", titleError=titleError, descData=desc, locData=location, upload_url=upload_url)
+    elif (img_type not in supportedtypes) and (img_type != "None"):
+      logging.info("error, invalid file type: "+img_type)
+      fileError="*Not Supported Filetype*<br><br>Supported Types: " + ", ".join(supportedtypes)
+      self.render("newitem.html", fileError=fileError, descData=desc, locData=location, upload_url=upload_url, titleData=title)
+    else:
+      logging.info("no errors, posting item")
+      if img_type!="None":
+        it = Item(title=title, description=desc, location=location, picture=db.Blob(picture))
+      else:
+        it = Item(title=title, description=desc, Location=location)
+      it.put()
+      time.sleep(0.1)
       self.redirect('/')
-    except:
-      logging.info("ya done goofed boi YAYAYYAYA")
-      self.error(500)
-"""
- 
+  else:
+    self.render("newitem.html", descData=data, locData=location, upload_url=upload_url, )
+
 class PermItem(Handler):
   def get(self, item_id):
     logging.info("entering the permalink for each lost item")
     logging.info("id: "+str(item_id))
     id_int = int(item_id)
     item = Item.get_by_id(id_int)
-    logging.info(str(item))
     self.render("item.html", item=item)
 
   def post(self, item_id):
     id_int = int(item_id)
     item = Item.get_by_id(id_int)
+    logging.info("item: "+str(item.key()))
     logging.info("this is if they want to claim an item")
-    logging.info(self.request.POST)
     con = httplib.HTTPSConnection("www.google.com")
     con.request("POST", "/recaptcha/api/siteverify", urllib.urlencode({"secret": "6LdVQTQUAAAAAEla2hBTZfXSiBOiaGUjYPVcbzIg", "response": self.request.get("g-recaptcha-response"), "remoteip": self.request.remote_addr}), {"Content-Type": "application/x-www-form-urlencoded"})
     response = con.getresponse()
     data = response.read()
     success = json.loads(data)['success']
     if success:
-      item.key.delete()
+      item.delete()
+      logging.info("key: "+str(item))
       time.sleep(0.1)
       self.redirect('/')
     else:
       self.render("item.html", item=item, error="Please complete reCaptcha")
 
-class About(Handler):
+class ImgHandler(Handler):
+  def get(self, img_id):
+    logging.info("img handler get")
+    item = Item.get_by_id(int(img_id))
+    if item.picture:
+      logging.info(item.title)
+      self.response.headers['Content-Type']="image"
+      self.response.out.write(item.picture)
+    else:
+      self.error(404)
+
+class ErrorHandler(Handler):
   def get(self):
-    logging.info("enter about get")
-    self.render("about.html")
-    file_handle(self)
+    self.render("error.html", error="404 page not found")
+
 
 application = webapp2.WSGIApplication([
  ('/', Home),
  ('/new', NewItem), 
  ('/about', About),
- #('/upload', UploadHandler),
+ (r'/img/(\d+)', ImgHandler),
  (r'/item/(\d+)', PermItem),
- (r'/\S+', Home),#who needs 404 errors?
+ ('/.*', ErrorHandler),#who needs 404 errors?
 ], debug=True)
