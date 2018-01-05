@@ -69,6 +69,7 @@ class About(Handler):
   def get(self):
     self.render("about.html")
 
+#currently a bracket error with the newitem when things are valid except for the captcha verification.
 class NewItem(Handler):
  def get(self):
   logging.info("******** New Item GET ******")
@@ -86,6 +87,7 @@ class NewItem(Handler):
   picture = self.request.get("file")
   img_type = imghdr.what(None, picture)
   img_type = str(img_type)
+  logging.info(img_type)
   supportedtypes = ['png', 'jpeg', 'gif', 'tiff', 'bmp']
   con = httplib.HTTPSConnection("www.google.com")
   con.request("POST", "/recaptcha/api/siteverify", urllib.urlencode({"secret": "6LdVQTQUAAAAAEla2hBTZfXSiBOiaGUjYPVcbzIg", "response": self.request.get("g-recaptcha-response"), "remoteip": self.request.remote_addr}), {"Content-Type": "application/x-www-form-urlencoded"})
@@ -93,14 +95,13 @@ class NewItem(Handler):
   data = response.read()
   success = json.loads(data)['success']
   if success:
-    if title=="":
-      logging.info("error, submitted blank title")
-      titleError="*Please Add a Title*"
-      self.render("newitem.html", titleError=titleError, descData=desc, locData=location, upload_url=upload_url)
+    logging.info("captcha was completed successfully")
+    if not title:
+      logging.info("no title")
     elif (img_type not in supportedtypes) and (img_type != "None"):
-      logging.info("error, invalid file type: "+img_type)
+      logging.info("valid file upload (or no file)")
       fileError="*Not Supported Filetype*<br><br>Supported Types: " + ", ".join(supportedtypes)
-      self.render("newitem.html", fileError=fileError, descData=desc, locData=location, upload_url=upload_url, titleData=title)
+      self.render("newitem.html", fileError=fileError, descData=desc, locData=location, titleData=title)
     else:
       logging.info("no errors, posting item")
       if img_type!="None":
@@ -111,7 +112,9 @@ class NewItem(Handler):
       time.sleep(0.1)
       self.redirect('/')
   else:
-    self.render("newitem.html", descData=data, locData=location, upload_url=upload_url, )
+    logging.info("CAPTCHA false")
+    self.render("newitem.html", descData=data, locData=location, titleData=title)
+  
 
 class PermItem(Handler):
   def get(self, item_id):
